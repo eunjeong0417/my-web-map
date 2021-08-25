@@ -7,6 +7,8 @@ import {
   Marker,
 } from "react-google-maps";
 import Geocode from 'react-geocode';
+import { Descriptions } from 'antd';
+import AutoComplete from 'react-google-autocomplete';
 
 
 Geocode.setApiKey('AIzaSyBcUyqcJVBmLUG1QVUz3KveAxeR620ujgU');
@@ -102,6 +104,33 @@ export class Map extends Component {
             // console.log('Lng', Lng)
         }
 
+    onPlaceSelected = (place) => {
+        const address = place.formatted_address,
+            addressArray = place.address_components,
+            city = this.getCity(addressArray),
+            area = this.getArea(addressArray),
+            state = this.getState(addressArray),
+            Lat = place.geometry.location.lat(),
+            Lng = place.geometry.location.lng();
+
+            this.setState({
+                        address: (address) ? address : '',
+                    //address가 없으면 빈값으로 설정
+                        area: (area) ? area : '',
+                        city: (city) ? city : '',
+                        state: (state) ? state : '',
+                        markerPosition: {
+                            lat: Lat,
+                            lng: Lng,
+                        },
+                        mapPosition: {
+                            lat: Lat,
+                            lng: Lng,
+                        },
+                    })
+    }
+    //검색어로 state 변경시켜
+    //위치를 찾는다
 
 
     render() {
@@ -117,14 +146,29 @@ export class Map extends Component {
                     onDragEnd={this.onMarkerDragEnd}
                     position={{ lat: this.state.markerPosition.lat, lng: this.state.markerPosition.lng }}>
                     <InfoWindow>
-                        <div>hello</div>
+                        <div>{this.state.city}</div>
                     </InfoWindow>
       </Marker>
+
+                <AutoComplete
+                    style={{width:"100%", height:'45px', paddingLeft:'5px', marginTop:"0.2em"}}
+                    onPlaceSelected={this.onPlaceSelected}
+                />
     
   </GoogleMap>
 ));
         return (
-            <div>
+            <div style={{padding:'1rem', margin:"0 auto", maxWidth:1000}}>
+                <h2>Location</h2>
+    <Descriptions bordered>
+    <Descriptions.Item label="City">{this.state.city}</Descriptions.Item>
+    <Descriptions.Item label="Area">{this.state.area}</Descriptions.Item>
+    <Descriptions.Item label="State">{this.state.state}</Descriptions.Item>
+    <Descriptions.Item label="Address">{this.state.address}</Descriptions.Item>
+    </Descriptions>
+
+
+
                <MapWithAMarker
   googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcUyqcJVBmLUG1QVUz3KveAxeR620ujgU&v=3.exp&libraries=geometry,drawing,places"
   loadingElement={<div style={{ height: `100%` }} />}
